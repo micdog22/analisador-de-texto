@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Analisador de Texto: contagem, tempo de leitura e legibilidade em português</title>
+  <meta name="description" content="Conte palavras, caracteres, frases e sílabas, veja o tempo de leitura e de fala, o índice de legibilidade de Flesch para o português e destaques para revisar o texto.">
+  <meta name="theme-color" content="#b45309">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1>Analisador de Texto</h1>
+    <p class="lead">Contagem de palavras e caracteres, tempo de leitura e legibilidade em português, com destaques para revisar.</p>
+  </header>
+
+  <main>
+    <p class="local-note">
+      <strong>O texto não sai do seu navegador.</strong>
+      A análise acontece aqui mesmo, enquanto você digita. Nada é enviado.
+    </p>
+
+    <div class="layout">
+      <section class="card editor-card" aria-labelledby="text-label">
+        <div class="editor-head">
+          <label for="text" id="text-label" class="label">Seu texto</label>
+          <div class="actions">
+            <button type="button" class="btn ghost small" id="sample">Texto de exemplo</button>
+            <button type="button" class="btn ghost small" id="clear">Limpar</button>
+          </div>
+        </div>
+        <textarea id="text" rows="14" placeholder="Cole ou digite o texto aqui." spellcheck="true"></textarea>
+        <label class="check"><input type="checkbox" id="remember"> Lembrar o texto neste navegador</label>
+
+        <div class="highlights">
+          <h2>Destaques para revisar</h2>
+          <div class="toggles" role="group" aria-label="Tipos de destaque">
+            <label class="chip chip-long"><input type="checkbox" id="hl-long" checked> Frases longas <span class="count" id="n-long">0</span></label>
+            <label class="chip chip-repeat"><input type="checkbox" id="hl-repeat" checked> Repetições próximas <span class="count" id="n-repeat">0</span></label>
+            <label class="chip chip-adverb"><input type="checkbox" id="hl-adverb" checked> Advérbios em -mente <span class="count" id="n-adverb">0</span></label>
+          </div>
+          <p class="muted small">
+            Frase longa tem mais de 30 palavras. Repetição próxima é a mesma palavra (sem contar as comuns) duas vezes em
+            menos de 15 palavras. Advérbios em -mente costumam pesar quando aparecem demais.
+          </p>
+          <div class="highlight" id="highlight"></div>
+        </div>
+      </section>
+
+      <aside class="stats" aria-label="Resultados">
+        <section class="card" aria-labelledby="counts-title">
+          <h2 id="counts-title">Contagens</h2>
+          <dl class="numbers" id="counts" aria-live="polite"></dl>
+        </section>
+
+        <section class="card" aria-labelledby="time-title">
+          <h2 id="time-title">Tempo</h2>
+          <dl class="times">
+            <div><dt>Leitura silenciosa</dt><dd id="reading">0 segundo</dd><dd class="muted small">de 200 a 250 palavras por minuto</dd></div>
+            <div><dt>Leitura em voz alta</dt><dd id="speaking">0 segundo</dd><dd class="muted small">cerca de 140 palavras por minuto</dd></div>
+          </dl>
+        </section>
+
+        <section class="card" aria-labelledby="flesch-title">
+          <h2 id="flesch-title">Legibilidade (Flesch)</h2>
+          <div class="gauge" aria-hidden="true">
+            <span class="band b1"></span><span class="band b2"></span><span class="band b3"></span><span class="band b4"></span>
+            <span class="needle" id="needle"></span>
+          </div>
+          <div class="gauge-labels" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <p class="score" id="score" aria-live="polite">Digite um texto para calcular.</p>
+          <p class="muted small" id="audience"></p>
+          <p class="formula" id="formula"></p>
+        </section>
+
+        <section class="card" aria-labelledby="limits-title">
+          <h2 id="limits-title">Limites</h2>
+          <div class="limits" id="limits"></div>
+        </section>
+
+        <section class="card" aria-labelledby="freq-title">
+          <h2 id="freq-title">Palavras mais frequentes</h2>
+          <p class="muted small">Sem artigos, preposições e outras palavras muito comuns.</p>
+          <ol class="freq" id="frequent"></ol>
+        </section>
+
+        <section class="card" aria-labelledby="syl-title">
+          <h2 id="syl-title">Separar sílabas</h2>
+          <label class="field">
+            <span>Digite uma ou mais palavras</span>
+            <input type="text" id="word" value="computador" autocomplete="off" spellcheck="false">
+          </label>
+          <ul class="syllables" id="syllables" aria-live="polite"></ul>
+        </section>
+      </aside>
+    </div>
+
+    <section class="card explain" aria-labelledby="how-title">
+      <h2 id="how-title">Como os números são calculados</h2>
+      <ul>
+        <li><strong>Caracteres</strong> contam o que aparece na tela: "é" e um emoji valem um cada. <strong>Parágrafos</strong> são as linhas com texto.</li>
+        <li><strong>Frases</strong> terminam em ponto, exclamação, interrogação ou reticências, e no fim de cada linha. Abreviações como "Sr." e "pág." não encerram frase.</li>
+        <li><strong>Sílabas</strong> vêm de regras de separação silábica (ditongos, hiatos, dígrafos e encontros consonantais). Funciona muito bem para palavras comuns, mas alguns hiatos dependem da pronúncia e palavras estrangeiras seguem a escrita.</li>
+        <li><strong>Índice de Flesch</strong> adaptado ao português por Martins e colaboradores (1996): <code>248,835 - 1,015 × palavras por frase - 84,6 × sílabas por palavra</code>. Quanto maior, mais fácil.</li>
+        <li><strong>SMS</strong>: com letras do alfabeto GSM cabem 160 caracteres por mensagem; um único "ã", "ç" ou emoji muda a codificação e o limite cai para 70.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Tudo roda no seu navegador. Código aberto no <a href="https://github.com/micdog22/analisador-de-texto">GitHub</a> · Licença MIT</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "analisador-de-texto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Contagem de palavras e caracteres, sílabas, tempo de leitura, índice de Flesch para o português e destaques para revisar, no navegador.",
+  "type": "module",
+  "scripts": { "test": "node --test" },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/micdog22/analisador-de-texto.git" },
+  "homepage": "https://micdog22.github.io/analisador-de-texto/"
+}
